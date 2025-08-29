@@ -1,0 +1,69 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ChatPrep – Gamified Learning</title>
+<style>
+  :root{--bg1:#4b2aad;--bg2:#7e38c8;}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Arial;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#fff;padding:24px}
+  .wrap{max-width:820px;margin:auto}
+  .card{background:rgba(255,255,255,.1);border-radius:18px;padding:20px;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  h1{margin:0 0 6px;font-size:28px} p{margin:6px 0}
+  .row{display:grid;gap:16px;grid-template-columns:1fr} @media(min-width:720px){.row{grid-template-columns:2fr 1fr}}
+  .btn{display:block;width:100%;text-align:left;background:#fff;color:#222;border:0;border-radius:12px;padding:12px 14px;margin:6px 0;font-weight:600;cursor:pointer}
+  .btn:hover{filter:brightness(.97)} .meta{display:flex;justify-content:space-between;opacity:.9;font-size:14px}
+  .bar{height:10px;background:rgba(255,255,255,.35);border-radius:8px;overflow:hidden;margin:10px 0}
+  .fill{height:100%;background:#fff;width:0%} .badge{display:inline-block;border:1px solid #fff;padding:4px 10px;border-radius:999px;margin:4px 6px 0 0;font-size:12px}
+  table{width:100%;border-collapse:collapse} th,td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,.25)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="card" style="margin-bottom:16px">
+    <h1>🎮 ChatPrep – Gamified Learning</h1>
+    <p>Turn study into play: quizzes, points, streaks & badges.</p>
+  </header>
+
+  <div class="row">
+    <main class="card">
+      <div class="meta"><span id="progText">Progress: 0%</span><span id="stat">Score: 0 · Streak: 0</span></div>
+      <div class="bar"><div class="fill" id="bar"></div></div>
+      <h2 id="q">Loading…</h2>
+      <div id="opts"></div>
+    </main>
+
+    <aside class="card">
+      <h3>Badges</h3>
+      <div id="badges"></div>
+      <h3 style="margin-top:16px">Leaderboard</h3>
+      <table id="board"><thead><tr><th>Name</th><th>Score</th></tr></thead><tbody></tbody></table>
+      <button class="btn" onclick="restart()">↻ Restart</button>
+    </aside>
+  </div>
+</div>
+
+<script>
+const qs=[{q:"HTTP stands for?",o:["HyperText Transfer Protocol","HighText Transfer Protocol","Home Tool Transfer Protocol","Hybrid Transfer Process"],a:0},
+{q:"Which is NOT a JS data type?",o:["String","Boolean","Character","Number"],a:2},
+{q:"CSS is used for?",o:["Structuring data","Styling pages","Database ops","Networking"],a:1},
+{q:"React state is updated via?",o:["setState/useState","this.state = {}","new State()","window.state"],a:0}];
+
+let i=0,score=0,streak=0,correct=0;
+const qEl=id("q"),oEl=id("opts"),sEl=id("stat"),bEl=id("bar"),pEl=id("progText"),bd=id("badges"),tb=id("board").querySelector("tbody");
+const others=[{name:"Asha",score:18},{name:"Rahul",score:21},{name:"Mina",score:9}];
+
+function id(x){return document.getElementById(x)}
+function load(){ if(i>=qs.length){ finish(); return; }
+  const {q,o}=qs[i]; qEl.textContent=`Q${i+1}. ${q}`; oEl.innerHTML="";
+  o.forEach((t,idx)=>{const b=document.createElement("button"); b.className="btn"; b.textContent=t; b.onclick=()=>ans(idx); oEl.appendChild(b);});
+  ui(); }
+function ans(k){const ok=k===qs[i].a; if(ok){score+=5+streak;streak++;correct++;} else {score=Math.max(0,score-2);streak=0;} i++; ui(); load();}
+function ui(){sEl.textContent=`Score: ${score} · Streak: ${streak}`; const pct=Math.round((i/qs.length)*100); pEl.textContent=`Progress: ${pct}%`; bEl.style.width=pct+"%"; badges(); board();}
+function badges(){bd.innerHTML=""; if(score>=10)add("Starter"); if(streak>=3)add("On Fire 🔥"); if(correct===qs.length)add("Perfect Run"); function add(t){const s=document.createElement("span"); s.className="badge"; s.textContent=t; bd.appendChild(s);}}
+function board(){const list=[...others,{name:"You",score}].sort((a,b)=>b.score-a.score).slice(0,5); tb.innerHTML=list.map(r=>`<tr><td>${r.name}</td><td>${r.score}</td></tr>`).join("");}
+function finish(){qEl.textContent="🎉 Great job!"; oEl.innerHTML=`<p>You answered ${correct}/${qs.length} correctly.</p>`;}
+function restart(){i=0;score=0;streak=0;correct=0;load();}
+load();
+</script>
+</body>
+</html>
